@@ -1,15 +1,14 @@
-import argparse
 from src.accvalue_app import AccValueApp
+from fastapi import FastAPI, Form, UploadFile
 
+app = FastAPI()
 
-def main():
-
-    parser = argparse.ArgumentParser(description='Make account value predictions with a pretrained model')
-    parser.add_argument('model', type=str, default="randomforest_cal", choices=['xgboost_cal', 'logregression', 'catboost', 'randomforest_cal'])
-    args = vars(parser.parse_args())
-
-    app = AccValueApp(args["model"])
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+    
+@app.post("/predict")
+async def root(accountsFile: UploadFile, quotesFile: UploadFile, model: str = Form(...)):
+    app = AccValueApp(model, accountsFile.file, quotesFile.file)
     res = app.run()
-    print(res.head())
-
-main()
+    return res.to_json()

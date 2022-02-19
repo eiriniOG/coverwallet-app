@@ -5,14 +5,15 @@ from .predictor import ConversionModel
 
 class AccValueApp():
     """
+    This class manages the end-to-end process of conversion prediction and account value calculation
     """
 
-    def __init__(self, model):
-
-        self.path_model = os.path.join(r'C:\Users\Irene\Desktop\coverwallet-test\assets', model + "_pkl")
-        self.path_scaler = os.path.join(r'C:\Users\Irene\Desktop\coverwallet-test\assets', "robustscaler_pkl")
-        self.path_quotes = os.path.join(r'C:\Users\Irene\Desktop\coverwallet-test\statement', "quotes_test.csv")
-        self.path_accounts = os.path.join(r'C:\Users\Irene\Desktop\coverwallet-test\statement', "accounts_test.csv")
+    def __init__(self, model, accountsFile, quotesFile):
+        assetsPath = os.path.dirname(os.path.abspath(__file__)) + r'/../assets'
+        self.path_model = os.path.join(assetsPath, model + "_pkl")
+        self.path_scaler = os.path.join(assetsPath, "robustscaler_pkl")
+        self.path_quotes = quotesFile
+        self.path_accounts = accountsFile
 
     def run(self):
 

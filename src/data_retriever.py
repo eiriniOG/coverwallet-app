@@ -22,7 +22,6 @@ class DataRetriever():
 
         #Return full dataset
         ret = self._create_master_data()
-        print(len(ret))
         return ret
     
     def prepare_variables(self,dataset):
