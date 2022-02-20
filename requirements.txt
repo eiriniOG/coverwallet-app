@@ -3,3 +3,4 @@ pandas==1.4.1
 scikit-learn==1.0.2
 catboost==1.0.4
 uvicorn==0.17.5
+python-multipart

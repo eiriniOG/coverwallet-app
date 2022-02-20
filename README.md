@@ -8,7 +8,7 @@ I focused on finding a solution for the two challenges presented in the
  
  ## Tools
  - Python (see requirements.txt for dependencies)
- - Makefile / Docker
+ - Docker
  - Colab from Google
  
  ## Usage
@@ -21,9 +21,8 @@ I focused on finding a solution for the two challenges presented in the
  Please take into account that this two are environment dependant, meaning that paths and libraries have to be modified and adjusted.
  - **Challenge 2**: it is resolved in the present repository through FastAPI. The fundamental code for formatting data and make predictions is in `/src` folder.
  
- `make install_<unix/windows>` will set up venv
- 
- `make run` will execute main.py to launch the app via uvicorn. Refer to http://127.0.0.1:8000/ for welcome and redirect to http://127.0.0.1:8000/docs to try the prediction endpoint. You need to upload an accounts file, a quotes file, and specify a model from this list: "catboost", "logregression", "randomforest_cal", "gboost_cal", or "gboost_cal". Other values will result in 500 Internal Server Error.
+`docker build -t coverwalletapp .` will build the image
+`docker run -d --name containercoverwallet -p 80:80 coverwalletapp` will run the container. The app is launched via uvicorn. Refer to http://127.0.0.1:8000/ for welcome and redirect to http://127.0.0.1:8000/docs to try the prediction endpoint. You need to upload an accounts file, a quotes file, and specify a model from this list: "catboost", "logregression", "randomforest_cal", "gboost_cal", or "gboost_cal". Other values will result in 500 Internal Server Error.
 
 This should work on your side without further adjustments to the code.
   
