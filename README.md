@@ -3,8 +3,8 @@
 ## Problem description
 I focused on finding a solution for the two challenges presented in the
  document `readme.pdf` by CoverWallet.
-- Challenge 1: given data abour accounts and quotes, train a model to predict conversion and therefore account value (as defined in the statement).
-- Challenge 2: serve the trained model through a consumable API.
+- **Challenge 1**: given data abour accounts and quotes, train a model to predict conversion and therefore account value (as defined in the statement).
+- **Challenge 2**: serve the trained model through a consumable API.
  
  ## Tools
  - Python (see requirements.txt for dependencies)
@@ -12,14 +12,14 @@ I focused on finding a solution for the two challenges presented in the
  - Colab from Google
  
  ## Usage
- - Challenge 1: there are two key notebooks for this step in `/notebooks` folder:
+ - **Challenge 1**: there are two key notebooks for this step in `/notebooks` folder:
  
  `model_training_v2.ipynb` where you will find all the steps involved in the model training and full details on decissions and conclusions. 
  
  `apply_model_test.ipynb` where you will find a manual script to apply trained models over new data. It is a functional-not-formal code to make quick submissions.
  
  Please take into account that this two are environment dependant, meaning that paths and libraries have to be modified and adjusted.
- - Challenge 2: it is resolved in the present repository through FastAPI. The fundamental code for formatting data and make predictions is in `/src` folder.
+ - **Challenge 2**: it is resolved in the present repository through FastAPI. The fundamental code for formatting data and make predictions is in `/src` folder.
  
  `make install_<unix/windows>` will set up venv
  
