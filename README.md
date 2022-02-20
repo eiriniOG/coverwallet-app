@@ -12,13 +12,14 @@ I focused on finding a solution for the two challenges presented in the
  - Colab from Google
  
  ## Usage
- - Challenge 1: there are two key notebooks for this step: . They can be found in `/notebooks` folder
-There is a notebook `flower_power.ipynb` made in Colab for Challenge 2: please open, take into account paths, and review. This is environment dependant.
- There is a noer for Challenge 1:  
-  `make install_<unix/windows>` will set up venv  
-  `make run` will execute
-   model.py to test the labrador retriever hack  
-   This should work on your side. 
+ - Challenge 1: there are two key notebooks for this step in `/notebooks` folder:
+   `model_training_v2.ipynb` where you will find all the steps involved in the model training and full details on decissions and conclusions.
+   `apply_model_test.ipynb` where you will find a manual script to apply trained models over new data.
+   Please take into account that this two are environment dependant, meaning that paths and libraries have to be modified and adjusted.
+ - Challenge 2: it is resolved in the present repository through FastAPI. The fundamental code for formatting data and make predictions is in `/src` folder.
+   `make install_<unix/windows>` will set up venv  
+   `make run` will execute main.py to launch the app via uvicorn. Refer to http://127.0.0.1:8000/ for welcome and redirect to http://127.0.0.1:8000/docs to try the prediction endpoint. You need to upload an accounts file, a quotes file, and specify a model from this list: "catboost", "logregression", "randomforest_cal", "xgboost_cal"
+   This should work on your side without further adjustments to the code.
   
 
  
