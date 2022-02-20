@@ -2,28 +2,25 @@
 
 ## Problem description
 I focused on finding a solution for the two challenges presented in the
- document `problem.pdf`.
-- Challenge 1: given a model for image recognition, hack it to miss a
- labrador retriever image changing the pixels in a way not detectable for
-  the human eye.
-- Challenge 2: training a flower recognition model strong enough against the
- hack from
- Challenge 1
+ document `readme.pdf`.
+- Challenge 1: given data abour accounts and quotes, train a model to predict conversion and therefore account value (as defined in the statement).
+- Challenge 2: serve the trained model through a consumable API.
  
  ## Tools
  - Python (see requirements.txt for dependencies)
- - Makefile
+ - Makefile / Docker
  - Colab from Google
  
  ## Usage
- There is a makefile for Challenge 1:  
+ - Challenge 1: there are two key notebooks for this step: . They can be found in `/notebooks` folder
+There is a notebook `flower_power.ipynb` made in Colab for Challenge 2: please open, take into account paths, and review. This is environment dependant.
+ There is a noer for Challenge 1:  
   `make install_<unix/windows>` will set up venv  
   `make run` will execute
    model.py to test the labrador retriever hack  
    This should work on your side. 
   
- There is a notebook `flower_power.ipynb` made in Colab for Challenge 2: please open, take into
-  account paths, and review. This is environment dependant.
+
  
  ## Solution
  ### Challenge 1: the labrador retriever hack
