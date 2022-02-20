@@ -2,7 +2,7 @@
 
 ## Problem description
 I focused on finding a solution for the two challenges presented in the
- document `readme.pdf`.
+ document `readme.pdf` by CoverWallet.
 - Challenge 1: given data abour accounts and quotes, train a model to predict conversion and therefore account value (as defined in the statement).
 - Challenge 2: serve the trained model through a consumable API.
  
@@ -13,160 +13,103 @@ I focused on finding a solution for the two challenges presented in the
  
  ## Usage
  - Challenge 1: there are two key notebooks for this step in `/notebooks` folder:
-   `model_training_v2.ipynb` where you will find all the steps involved in the model training and full details on decissions and conclusions.
-   `apply_model_test.ipynb` where you will find a manual script to apply trained models over new data.
-   Please take into account that this two are environment dependant, meaning that paths and libraries have to be modified and adjusted.
+ 
+ `model_training_v2.ipynb` where you will find all the steps involved in the model training and full details on decissions and conclusions. 
+ 
+ `apply_model_test.ipynb` where you will find a manual script to apply trained models over new data. It is a functional-not-formal code to make quick submissions.
+ 
+ Please take into account that this two are environment dependant, meaning that paths and libraries have to be modified and adjusted.
  - Challenge 2: it is resolved in the present repository through FastAPI. The fundamental code for formatting data and make predictions is in `/src` folder.
-   `make install_<unix/windows>` will set up venv  
-   `make run` will execute main.py to launch the app via uvicorn. Refer to http://127.0.0.1:8000/ for welcome and redirect to http://127.0.0.1:8000/docs to try the prediction endpoint. You need to upload an accounts file, a quotes file, and specify a model from this list: "catboost", "logregression", "randomforest_cal", "xgboost_cal"
-   This should work on your side without further adjustments to the code.
+ 
+ `make install_<unix/windows>` will set up venv
+ 
+ `make run` will execute main.py to launch the app via uvicorn. Refer to http://127.0.0.1:8000/ for welcome and redirect to http://127.0.0.1:8000/docs to try the prediction endpoint. You need to upload an accounts file, a quotes file, and specify a model from this list: "catboost", "logregression", "randomforest_cal", "gboost_cal", or "gboost_cal". Other values will result in 500 Internal Server Error.
+
+This should work on your side without further adjustments to the code.
   
 
  
  ## Solution
- ### Challenge 1: the labrador retriever hack
+ ### Challenge 1: The Account Value Case Dilemma
  #### 1. Thinking
- When I first read the problem I opened a Colab notebook and tried the obvious
-  just for starters: let's just change randomly all pixels in the image to
-   +/-1 and see what happens, but precisely, it was too random.  
-   Then I started reading about adversarial images and found three
-    interesting approaches:  
-- The Adversarial Patch: which consists in adding an ugly patch to the
-     input image to make the network fail.
-- The One Pixel Attack: which claims that modifying only one precise pixel
- of the input image will make the network fail.
-- The Fast Gradient Signed Method (FGSM): which adds noise to the input
- image by using
- gradients of the trained network, to make it fail.
- 
-The Adversarial Patch was discarded right away since it is too obvious and
- visible for the human eye, and we want the change to be undetected.  
- I tried
-  changing one pixel only at random areas of the image
- (center, up/down
--left/right quarter centers) and it did something (few decimal points lower
- than the original precision). I find this approach very interesting
-  because it does not depend on the pretrained model itself. But locating the
-   correct pixel is a rather complex optimization problem, so I discarded
-    this approach too.
+ When I first read the problem I thought about building a regression model, directly based on final account values. But that approach presented two problems: it ignores the existence of conversion middle step and it forces me to either aggregate quotes data somehow (not always feasible) or just discard it (and use only accounts information).
      
  #### 2. Developing
- FGSM consists on taking the pretrained model, apply it to the input image, calculate gradients of the loss functions and use their signs to make
-  some blurry noise and add it on top of the original image. This way, we do
-   not modify the pretrained model weigths nor the internal layers
-    configuration, but rather maximize the loss by learning the
-     contribution of each input pixel.
+The fact conversion/not conversion is modeled through Classification techniques. That means that the unit of modeling is a quote containing certain descriptive variable about the quote itself and the account that made it.
+
+First of all, input data is processed and analyzed in order to find any possible issue, and also to transform it into a single master dataset.
+
+Secondly, univariate and multivariate analysis are performed in order to solve data behaviours that might complicate statistical basis of training.
+
+Modeling is then carried out, for five different algorithms: [Logistic Regression](https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression), [Random Forest](https://scikit-learn.org/stable/modules/ensemble.html#forests-of-randomized-trees), [GBoost](https://scikit-learn.org/stable/modules/ensemble.html#gradient-boosting), [XGBoost](https://xgboost.readthedocs.io/en/stable/index.html) and [CatBoost](https://catboost.ai/en/docs/).
+
+Finally, testing the models over validation data gives a hint about which candidate should be picked as final model for prediction.
      
-So, I coded a class `Fool` that can help to deceive the model given an input
- image related to a specific class of the ImageNet (https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a), and the predicted result obtained previously
-  with the pretrained model.
-In this case, we know that the input image is a labrador retriever, whose
- imagenet index is 208. To test it with other images, it is necessary to
-  change manually `thing_index` in `model.py` to the corresponding image class.
- 
-I use this class to calculate the noise square using gradients of the loss, and
- patch it to the input image weighted by an epsilon (0.01). The larger is
-  the epsilon the more detectable the change is to the human eye. Then, the
-   modified image is re-predicted and served as the output. `model.py` plots
-    this latter result instead of the initially obtained prediction.
- 
- It is commented in the code, but it is possible to plot the noise and the
-  fake image obtained as adversarial to see how it changes in respect to the
-   original image. This compartmentalization of the code will be useful in
-    the Challenge 2.
-    
-I wanted to write something simple that could easily be added to the
- provided code, so I chose to build a new class usable in the main.
- 
- #### 3. Results
-When executing `model.py` with `EPSILON=0.01`, the labrador retriever is
- classified as a Saluki
- with 16.60% confidence (saved in `/results` folder), which is another type of
-  hound dog
-  (imagenet index 176). If `EPSILON=0.15`, the model thinks the image is a Weimaraner, and if
-  `EPSILON=0.2` the model even thinks the image is an African chameleon
-   (with low levels of confidence).
+
+ #### 3. Insights and Results
+ The following is a summary, please refer to notebook `model_training_v2.ipynb` for full details.
+##### 3.1 From Data
+- Accounts initial dataset has 5709 rows and Quotes initial dataset has 11724 rows.
+- Filtering was implemented when encountering duplicates in Quotes dataset (all full row duplicates were erased).
+- Filtering was implemented when encoutering null values in Accounts dataset representing <1% of the total rows. That was the case of columns: state, year of establishment, annual revenue, total payroll, business structure and number of employees. Null values that may appear in the future will be interpreted as the mean for continuous variables or the most frequent value for categorical variables.
+- In Accounts dataset, industry and subindustry null values represented almost 3% of rows, so they were substituted by "blank" new value. However, subindutry variable was finally discarded due to its large diversity.
+- Residual variables (<1%) related to products, carriers, states and industries are grouped into a single category. A new variable "company age" is calculated from year of establishment (discarded).
+- Continuous variables present a huge amount of outliers, which were filtered with an iqr expansion factor of 4 from Q3.
+- Conversion cases are specially low for premiums between 500$-505$. General liability is the product with highest number of quotes, but Commercial Auto, CW Errors Omissions and Package have the highest conversion rates. California and Florida are the ones that concentrate the higher number of quotes, but Kentucky and Oregon have the highest conversion rates.
+- Variables with correlation higher than 70% have been analyzed and treated. A curious case was that Carrier id=53 was highly correlated with Commercial Auto product, so it might be a specialized insurance company with a high market quota in the US or Florida (maybe Progressive or Geico)
+- The final dataset has 9032 rows and is fairly balanced in terms of conversion (60% of 1s-40% of 0s).
+
+##### 3.1 From Modeling
+- 58 variables among continuous and dummies are pre-selected for classification, meanwhile only 9 original variables are necessary for CatBoost.
+- Due to the huge amount of outliers, RobustScaler is used to scale continuous variables before modeling and avoid lack of convergence in algorithms weak against outliers like LogisticRegression.
+- F1-score is the preferred metric to assess model training and selection, since it is desirable to
+>Refine true positives, in order to optimize further marketing actions resources to increase conversion.
+
+>Avoid as many false negatives as possible, since the opposite would mean losing chances of potential clients.
+- Below, the predictive robustness of all casuistics is described, for the best candidates from CrossValidation and GridSearch tuning.
+
+|Model|Train F1score|Validation AUC|Validation F1score|Validation RMSE($)|
+|:---|:----:|:----:|:----:|:----:|
+|LogReg|75,40%|68,55%|76,02%|438,39|
+|RandomForest|76,43%|63,77%|77,68%|396,25|
+|Gboost|76,66%|67,13%|77,33%|408,43|
+|XGBoost|76,66%|67,30%|77,28%|405,17|
+|CatBoost|76,31%|68,59%|76,54%|420,90|
+
+Submitted results over provided test data are calculated with RandomForest since it is the model with lowest RMSE. Nevertheless, expected account values (using predicted probabilites) are provided also for the other algoritms.
+- The models are calibrated to adjust predicted probabilities to conversion observed distribution.
 
 
+
  
- ### Challenge 2: detect flowers
+ ### Challenge 2: Serving the model
  #### 1. Thinking
- This one was relatively "easy" to decide. I just went for a transfer
-  learning approach and supported my coding with available repositories.
- Prior to anything, given the bulk structure of the flowers dataset I had to
-  download the flowers into my local disk and then
-  run some bash code to split it into train and test sets using path
-   directories to infer the classes
-   (you can find the bash script in `/examples/flowers.sh`).  
-   In this problem
-    the key is data augmentation: besides the normal flips, rotations, etc. we should use new generated images containing the noise
- built in Challenge 1. Meaning: we can use `_make_noise()` from class `Fool`
-  on all those flower images in train folder, in order to include additional
-   adversarial images in
-   the training process. This way our model would learn also to ignore the
-    FGSM hack. Sorry I did not implement this idea because time.
-The generators for train and test also take care of homogeneous distribution
- through flower classes.
+This part was optional but I wanted to undertake it since it gives the opportunity to design and code outside the notebook-like approach.
 
-   
+The usecase of the model prediction functionality was not very clear so I had two choices: single row predictions (e.g., for streaming/real time use) or batch prediction. I went for the batch usecase since it was very similar to the requested submission test files.
+
  #### 2. Developing
-After the transfer learning, and adding some main layers at the end, the
- model is ready to recognize 5 kinds of flowers: daisies, dandelions, roses, tulips and sunflowers (which are my favourite).
-Further details of the analysis and cells can be found inside the markdowns
- of the notebook.
- Using GPUs in Colab I was able to train the model three times to see if I
- could improve by increasing epochs and substeps.
+Since I am not a fully skilled Python software developper, I have chosen [FastAPI](https://fastapi.tiangolo.com/) framework because of its friendly learning curve approach and its simplicity. It allowed me to build something functional in short time.
+
+I decided to separate the different steps of model application into different classes, in case the code has to be updated in the future. The `DataRetriever` class takes charge of processing input files and generate a single dataset for prediction, the `DataScaler` applies pre-trained robust scaling to continuous columns, and the `ConversionModel` class makes predictions on conversion and calculates final account values (it would allow to change the response and return 1s/0s for variable convert, since they are two separate methods). `AccValueApp` class is in charge of orchestrating all those steps.
+
+Pretrained models are stored in `/assets` folder and they will be used by the app from there.
+
+Error responses are the standard APIrest codes.
 
  #### 3. Results
-The best version of the model v3 took 50 mins to train (accuracy is 91.25
-% and was reached at
- epoch 15th) and is saved in Colab folder so
- you can load it and test it at the end of the notebook. I tried with some
-  random
-  pictures from Google and some photos
-  I took in the _Jardín Botánico de Madrid_ at the beginning of Spring'21. It failed to predict three of them and succeeded in 10 of them.  
-  I have the feeling (by looking at the history of training epochs) that this
-   model v3 could be undertrained or overfitted
-   to the train-test samples. Model versions v1 and v2 had lower accuracy
-    but responded better to the out-of-sample test images. All three
-     versions of the model can be found in `/results` folder.
-After these initial tries, I finally trained a v4 model with 100 epochs and
- 50 substeps to see if I could lower the overfitting, and it turned out
-  better. A v5 model was also trained with 50 epochs and 50 substeps and
-   similar results were obtained with a little less of accuracy over val
-    dataset. Both models succeeded in 11/13 test pictures. You can see a
-     summary of results in `/results
-    /results.pdf`. I would probably go for v4 version as final candidate.
-
+The app takes an Accounts csv and a Quotes csv with **the exact same headers** as provided in the statement, and performs all necessary treatments before predicting expected account values with a specified pretrained model. It returns a json response with accounts ids and expected account value for each one.
 
  ## Conclusions and improvements
-- It was a lot of fun researching, reading, understanding and implementing
+- It was a lot of fun reading, understanding and implementing
  the solutions. I felt motivated when I started unraveling the problem :)
- - I would like to learn how to optimize One Pixel Attack, it
- is something I did not fully understand in terms of implementation.
- - I should try to make a flower model from scratch and build it step by
-  step to experiment the full picture of a neural network configuration. Or
-   at least do some fine-tuning to current layers, which I did not try (I
-    only changed epochs and substeps).
- - I need to write a script that goes over every image in the train and test
-  folders and generates adversarial images using `_make_noise()` from class
-   `Fool
-  ` and places them in the same class directory than the original ones. After that, I have to execute the notebook all over again and test the
-   model against FGSM fake images.
+ - I did not find any reference to data stationality since there were no variables related to time or timestamps whatsoever. It would be interesting to understand quotes also in a time-context, because other wise it is not possible to know the time-framed validity of predicted conversion (is the conversion observed in the next 24 hours? in the next week?).
+ -  The predictive robustness of the trained models are not very optimal.
+ - There is a lot of hardcoding within the repository due to specific column names above all, I tried to minimize it including a config file.
+ - I should define classes of model types, responses and usecases following formal FastAPI philosophy to make the app scalable. I also should include unit testing at least.
+ - Models are stored in a folder repository, this could be a problem in terms of heaviness. In a formal environment, models could be better invoked from other kind of storage (like cloud compartments).
 - The notebook approach is a risk in terms of environments and
- reproducibility of results. I should find a more portable solution.
+ reproducibility of results. I should find a more portable solution also for the training in order to follow a philosophy closer to MLOps.
  
  ## References
- ### Challenge 1
-- T.B. Brown, D. Mané, A. Roy, M. Abadí and J. Guiler, "Adversarial Patch
-" in arXiv:1712.09665v2, May 2018, url: https://arxiv.org/abs/1712.09665
-- J. Su, D. V. Vargas and K. Sakurai, "One Pixel Attack for Fooling Deep Neural Networks" in IEEE Transactions on Evolutionary Computation, vol. 23, no. 5, pp. 828-841, Oct. 2019, doi: 10.1109/TEVC.2019.2890858.
-- I.J. Goodfellow, J. Shlens, C. Szegedy, "Explaining and Harnessing
- Adversarial Examples" in arXiv:1412.6572v3, Mar. 2015, url: https://arxiv.org/abs/1412.6572v3
-- https://www.tensorflow.org/tutorials/generative/adversarial_fgsm
-- https://towardsdatascience.com/how-to-systematically-fool-an-image-recognition-neural-network-7b2ac157375d
-- https://buzzrobot.com/4-ways-to-easily-fool-your-deep-neural-net-dca49463bd0 
- ### Challenge 2
- - https://www.tensorflow.org/hub/tutorials/image_feature_vector
- - https://www.tensorflow.org/tutorials/images/data_augmentation
- - https://github.com/oleksandr-g-rock/flower_classification/blob/main/flowers_5_classes.ipynb
+Already linked within the document.
