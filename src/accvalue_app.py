@@ -10,7 +10,8 @@ class AccValueApp():
 
     def __init__(self, model, accountsFile, quotesFile):
         assetsPath = os.path.dirname(os.path.abspath(__file__)) + r'/../assets'
-        self.path_model = os.path.join(assetsPath, model + "_pkl")
+        self.model = "catboost"
+        self.path_model = os.path.join(assetsPath, "catboost" + "_pkl")
         self.path_scaler = os.path.join(assetsPath, "robustscaler_pkl")
         self.path_quotes = quotesFile
         self.path_accounts = accountsFile
@@ -18,12 +19,12 @@ class AccValueApp():
     def run(self):
 
         #Get data
-        retr_data = DataRetriever(self.path_accounts,self.path_quotes, self.path_model)
+        retr_data = DataRetriever(self.path_accounts,self.path_quotes, self.model)
         ds_input = retr_data.retrieve_appdata()
         ds_input_treated = retr_data.prepare_variables(ds_input)
 
         #Scale data
-        scaler = DataScaler(self.path_scaler, self.path_model)
+        scaler = DataScaler(self.path_scaler, self.model)
         ds_scaled = scaler.scale(ds_input_treated)
 
         #Predict
