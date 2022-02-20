@@ -2,7 +2,7 @@
 FROM python:3.9
 
 # 
-WORKDIR ./
+WORKDIR /
 
 # 
 RUN pip install --no-cache-dir --upgrade -r ./requirements.txt

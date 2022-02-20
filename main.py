@@ -5,7 +5,7 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hi! This is an awesome api to make Account Value predictions"}
     
 @app.post("/predict")
 async def root(accountsFile: UploadFile, quotesFile: UploadFile, model: str = Form(...)):
