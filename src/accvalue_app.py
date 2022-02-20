@@ -10,8 +10,8 @@ class AccValueApp():
 
     def __init__(self, model, accountsFile, quotesFile):
         assetsPath = os.path.dirname(os.path.abspath(__file__)) + r'/../assets'
-        self.model = "catboost"
-        self.path_model = os.path.join(assetsPath, "catboost" + "_pkl")
+        self.model = model
+        self.path_model = os.path.join(assetsPath, self.model + "_pkl")
         self.path_scaler = os.path.join(assetsPath, "robustscaler_pkl")
         self.path_quotes = quotesFile
         self.path_accounts = accountsFile
@@ -28,6 +28,7 @@ class AccValueApp():
         ds_scaled = scaler.scale(ds_input_treated)
 
         #Predict
+        print(self.path_model)
         model = ConversionModel(self.path_model)
         results_pred = model.predict(ds_scaled)
         return model.calculate_accvalue(results_pred)
