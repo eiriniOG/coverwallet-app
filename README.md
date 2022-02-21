@@ -35,7 +35,7 @@ This should work on your side without further adjustments to the code.
  When I first read the problem I thought about building a regression model, directly based on final account values. But that approach presented two problems: it ignores the existence of conversion middle step and it forces me to either aggregate quotes data somehow (not always feasible) or just discard it (and use only accounts information).
      
  #### 2. Developing
-The fact conversion/not conversion is modeled through Classification techniques. That means that the unit of modeling is a quote containing certain descriptive variable about the quote itself and the account that made it.
+The fact conversion/not conversion is modeled through Classification techniques, and then it will be used to calculate expected account values according to the provided definition grouping by account ids. That means that the unit of modeling is a quote containing certain descriptive variable about the quote itself and the account that made it.
 
 First of all, input data is processed and analyzed in order to find any possible issue, and also to transform it into a single master dataset.
 
@@ -47,7 +47,7 @@ Finally, testing the models over validation data gives a hint about which candid
      
 
  #### 3. Insights and Results
- The following is a summary, please refer to notebook `model_training_v2.ipynb` for full details.
+ The following is a summary, please refer to notebook `model_training_v2.ipynb` for full details and plots.
 ##### 3.1 From Data
 - Accounts initial dataset has 5709 rows and Quotes initial dataset has 11724 rows.
 - Filtering was implemented when encountering duplicates in Quotes dataset (all full row duplicates were erased).
@@ -55,12 +55,12 @@ Finally, testing the models over validation data gives a hint about which candid
 - In Accounts dataset, industry and subindustry null values represented almost 3% of rows, so they were substituted by "blank" new value. However, subindutry variable was finally discarded due to its large diversity.
 - Residual variables (<1%) related to products, carriers, states and industries are grouped into a single category. A new variable "company age" is calculated from year of establishment (discarded).
 - Continuous variables present a huge amount of outliers, which were filtered with an iqr expansion factor of 4 from Q3.
-- Conversion cases are specially low for premiums between 500$-505$. General liability is the product with highest number of quotes, but Commercial Auto, CW Errors Omissions and Package have the highest conversion rates. California and Florida are the ones that concentrate the higher number of quotes, but Kentucky and Oregon have the highest conversion rates.
-- Variables with correlation higher than 70% have been analyzed and treated. A curious case was that Carrier id=53 was highly correlated with Commercial Auto product, so it might be a specialized insurance company with a high market quota in the US or Florida (maybe Progressive or Geico)
+- Conversion cases are specially low for premiums between 500$-505$. General liability is the product with highest number of quotes, but Commercial Auto, CW Errors Omissions and Package have the highest conversion rates. California and Florida are the states with the higher number of quotes, but Kentucky and Oregon have the highest conversion rates.
+- Variables with correlation higher than 70% have been analyzed and treated. A curious case was that Carrier id=53 was highly correlated with Commercial Auto product, so it might be a specialized insurance company with a high market quota in the US or Florida (maybe Progressive or Geico according to quick Google search).
 - The final dataset has 9032 rows and is fairly balanced in terms of conversion (60% of 1s-40% of 0s).
 
 ##### 3.1 From Modeling
-- 58 variables among continuous and dummies are pre-selected for classification, meanwhile only 9 original variables are necessary for CatBoost.
+- 58 variables among continuous and dummies are pre-selected for modeling with a 80-20% train/validation split, meanwhile only 9 original variables are necessary for CatBoost.
 - Due to the huge amount of outliers, RobustScaler is used to scale continuous variables before modeling and avoid lack of convergence in algorithms weak against outliers like LogisticRegression.
 - F1-score is the preferred metric to assess model training and selection, since it is desirable to
 >Refine true positives, in order to optimize further marketing actions resources to increase conversion.
@@ -84,7 +84,7 @@ Submitted results over provided test data are calculated with RandomForest since
  
  ### Challenge 2: Serving the model
  #### 1. Thinking
-This part was optional but I wanted to undertake it since it gives the opportunity to design and code outside the notebook-like approach.
+This part was optional but I wanted to undertake it since it gives the opportunity to design and code, outside the notebook-like approach.
 
 The usecase of the model prediction functionality was not very clear so I had two choices: single row predictions (e.g., for streaming/real time use) or batch prediction. I went for the batch usecase since it was very similar to the requested submission test files.
 
@@ -103,8 +103,8 @@ The app takes an Accounts csv and a Quotes csv with **the exact same headers** a
  ## Conclusions and improvements
 - It was a lot of fun reading, understanding and implementing
  the solutions. I felt motivated when I started unraveling the problem :)
- - I did not find any reference to data stationality since there were no variables related to time or timestamps whatsoever. It would be interesting to understand quotes also in a time-context, because other wise it is not possible to know the time-framed validity of predicted conversion (is the conversion observed in the next 24 hours? in the next week?).
- - The predictive robustness of the trained models are not very optimal.
+ - I did not find any reference to data stationality since there were no variables related to time or timestamps whatsoever. It would be interesting to understand quotes also in a time-context, because otherwise it is not possible to know the time-framed validity of predicted conversion (is the conversion observed in the next 24 hours? in the next week?).
+ - The predictive robustness of the trained models are not very optimal, I would like to have more data and time to process it, along with a Business Owner, to fully understand the conversion funnel.
  - There is a lot of hardcoding within the repository due to specific column names above all, I tried to minimize it including a config file.
  - I should define classes of model types, responses and usecases following formal FastAPI philosophy to make the app scalable. I also should include unit testing at least.
  - Models are stored in a folder repository, this could be a problem in terms of heaviness. In a formal environment, models could be better invoked from other kind of storage (like cloud compartments).
