@@ -65,7 +65,6 @@ class DataRetriever():
         name_vars_object = [name for name,tipo in dataset.dtypes.iteritems() if 'object' in str(tipo) and name not in ["account_uuid"]]
         dataset[name_vars_object] = dataset[name_vars_object].applymap(lambda x: string_to_nomenclature(x))
 
-        #Building dummies in a separate dataset
         return pd.get_dummies(dataset,columns=name_vars_object)
     
     def _update_variables(self, dataset):
