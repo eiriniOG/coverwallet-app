@@ -105,7 +105,7 @@ The app takes an Accounts csv and a Quotes csv with **the exact same headers** a
  the solutions. I felt motivated when I started unraveling the problem :)
  - I did not find any reference to data stationality since there were no variables related to time or timestamps whatsoever. It would be interesting to understand quotes also in a time-context, because otherwise it is not possible to know the time-framed validity of predicted conversion (is the conversion observed in the next 24 hours? in the next week?).
  - The predictive robustness of the trained models are not very optimal, I would like to have more data and time to process it, along with a Business Owner, to fully understand the conversion funnel.
- - There is a lot of hardcoding within the repository due to specific column names above all, I tried to minimize it including a config file.
+ - There is a lot of hardcoding within the repository due to specific column names above all, I tried to minimize it including a config file. Besides, the app code is barely commented.
  - I should define classes of model types, responses and usecases following formal FastAPI philosophy to make the app scalable. I also should include unit testing at least.
  - Models are stored in a folder repository, this could be a problem in terms of heaviness. In a formal environment, models could be better invoked from other kind of storage (like cloud compartments).
 - The notebook approach is a risk in terms of environments and
