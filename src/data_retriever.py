@@ -7,10 +7,10 @@ class DataRetriever():
     This class process raw data and prepares it before predictions
     """
 
-    def __init__(self, path_accounts, path_quotes, model: str):
+    def __init__(self, path_accounts, path_quotes, model_name: str):
         self.path_accounts = path_accounts
         self.path_quotes = path_quotes
-        self.model = model
+        self.model_name = model_name
 
     def retrieve_appdata(self):
         self.raw_accounts, self.raw_quotes = self._get_data()
@@ -29,7 +29,7 @@ class DataRetriever():
         ds_grouped = self._grouping_variables(dataset)
 
         ds_dummies = ds_grouped
-        if self.model != "catboost":
+        if self.model_name != "catboost":
             ds_dummies = self._create_dummies(ds_grouped)
             
         return self._update_variables(ds_dummies)
@@ -69,7 +69,7 @@ class DataRetriever():
     
     def _update_variables(self, dataset):
         dataset["company_age"] = pd.datetime.now().year - dataset["year_established"]
-        if self.model != "catboost":
+        if self.model_name != "catboost":
             dataset.drop(["year_established", "total_payroll", "carrier_id_res_53", "business_structure_res_individual"], axis=1, inplace=True)
         else:
             dataset.drop(["year_established", "total_payroll"], axis=1, inplace=True)
