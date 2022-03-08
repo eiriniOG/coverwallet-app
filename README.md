@@ -23,7 +23,7 @@ I focused on finding a solution for the two challenges presented in the
  
 `docker build -t coverwalletapp .` will build the image
 
-`docker run -p 80:80 coverwalletapp` will run the container. The app is launched via uvicorn. Refer to http://127.0.0.1:80/ for welcome and redirect to http://127.0.0.1:80/docs to try the prediction endpoint. You need to upload an accounts file, a quotes file, and specify a model from this list: "catboost", "logregression", "randomforest_cal", "gboost_cal", or "xgboost_cal". Other values will result in 500 Internal Server Error.
+`docker run -p 80:80 coverwalletapp` will run the container. The app is launched via uvicorn. Refer to http://127.0.0.1:80/ for welcome and redirect to http://127.0.0.1:80/docs to try the prediction endpoint. You need to upload an accounts file (you may use "accounts_test.csv" located in `/notebooks/data`), a quotes file (you may use "quotes_test.csv" located in `/notebooks/data`), and specify a model from this list: "catboost", "logregression", "randomforest_cal", "gboost_cal", or ~"xgboost_cal"~ (currently experiencing some issues due to library version updates). Other values will result in response error. 
 
 This should work on your side without further adjustments to the code.
   
