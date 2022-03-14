@@ -2,7 +2,7 @@
 
 ## Problem description
 I focused on finding a solution for the two challenges presented in the
- document `readme.pdf` by CoverWallet.
+ document `statement.pdf` by CoverWallet.
 - **Challenge 1**: given data abour accounts and quotes, train a model to predict conversion and therefore account value (as defined in the statement).
 - **Challenge 2**: serve the trained model through a consumable API.
  
